@@ -1,0 +1,80 @@
+--- sandbox.b550c0e	2019-09-25 18:05:13.174378875 +0200
++++ bwrap-sandbox	2019-09-25 19:06:17.958329159 +0200
+@@ -35,7 +35,7 @@
+ import pwd
+ import sepolicy
+ 
+-SEUNSHARE = "/usr/sbin/seunshare"
++BWRAP = "/usr/bin/bwrap"
+ SANDBOXSH = "/usr/share/sandbox/sandboxX.sh"
+ PROGNAME = "policycoreutils"
+ try:
+@@ -214,10 +214,10 @@
+             if not self.__options.homedir or not self.__options.tmpdir:
+                 self.usage(_("Homedir and tempdir required for level mounts"))
+ 
+-        if not os.path.exists(SEUNSHARE):
++        if not os.path.exists(BWRAP):
+             raise ValueError(_("""
+ %s is required for the action you want to perform.
+-""") % SEUNSHARE)
++""") % BWRAP)
+ 
+     def __mount_callback(self, option, opt, value, parser):
+         self.__mount = True
+@@ -225,10 +225,10 @@
+     def __x_callback(self, option, opt, value, parser):
+         self.__mount = True
+         setattr(parser.values, option.dest, True)
+-        if not os.path.exists(SEUNSHARE):
++        if not os.path.exists(BWRAP):
+             raise ValueError(_("""
+ %s is required for the action you want to perform.
+-""") % SEUNSHARE)
++""") % BWRAP)
+ 
+         if not os.path.exists(SANDBOXSH):
+             raise ValueError(_("""
+@@ -310,9 +310,9 @@
+             pass
+ 
+         usage = _("""
+-sandbox [-h] [-l level ] [-[X|M] [-H homedir] [-T tempdir]] [-I includefile ] [-W windowmanager ] [ -w windowsize ] [[-i file ] ...] [ -t type ] command
++bwrap-sandbox [-h] [-l level ] [-[X|M] [-H homedir] [-T tempdir]] [-I includefile ] [-W windowmanager ] [ -w windowsize ] [[-i file ] ...] [ -t type ] command
+ 
+-sandbox [-h] [-l level ] [-[X|M] [-H homedir] [-T tempdir]] [-I includefile ] [-W windowmanager ] [ -w windowsize ] [[-i file ] ...] [ -t type ] -S
++bwrap-sandbox [-h] [-l level ] [-[X|M] [-H homedir] [-T tempdir]] [-I includefile ] [-W windowmanager ] [ -w windowsize ] [[-i file ] ...] [ -t type ] -S
+ %s
+ """) % types
+ 
+@@ -448,11 +448,15 @@
+ 
+     def __execute(self):
+         try:
+-            cmds = [SEUNSHARE, "-Z", self.__execcon]
++            cmds = [BWRAP, '--dev-bind', '/', '/', "--exec-label", self.__execcon]
+             if self.__options.usecaps:
+-                cmds.append('-C')
++                cmds += [ '--cap-add', 'all' ]
+             if self.__mount:
+-                cmds += ["-t", self.__tmpdir, "-h", self.__homedir]
++                cmds += [
++                    "--bind", self.__tmpdir , '/tmp',
++                    "--bind", self.__tmpdir , '/var/tmp',
++                    "--bind", self.__homedir, os.path.expanduser("~")
++                ]
+ 
+                 if self.__options.X_ind:
+                     if self.__options.dpi:
+@@ -470,9 +474,9 @@
+ 
+                     self.__setup_sandboxrc(self.__options.wm)
+ 
+-                    cmds += ["--", SANDBOXSH, self.__options.windowsize, dpi]
++                    cmds += [SANDBOXSH, self.__options.windowsize, dpi]
+                 else:
+-                    cmds += ["--"] + self.__paths
++                    cmds += self.__paths
+                 return subprocess.Popen(cmds).wait()
+ 
+             pid = os.fork()
