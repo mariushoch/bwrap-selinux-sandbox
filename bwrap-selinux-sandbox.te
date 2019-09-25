@@ -1,0 +1,19 @@
+policy_module(bwrap-selinux-sandbox, 1.0)
+
+gen_require(`
+        type unconfined_t;
+        type sandbox_t;
+	type sandbox_min_t;
+	type sandbox_x_t;
+        type sandbox_web_t;
+	type sandbox_net_t;
+	type sandbox_net_client_t;
+        class process2 { nnp_transition nosuid_transition };
+')
+
+allow unconfined_t sandbox_t:process2 { nnp_transition nosuid_transition };
+allow unconfined_t sandbox_min_t:process2 { nnp_transition nosuid_transition };
+allow unconfined_t sandbox_x_t:process2 { nnp_transition nosuid_transition };
+allow unconfined_t sandbox_web_t:process2 { nnp_transition nosuid_transition };
+allow unconfined_t sandbox_net_t:process2 { nnp_transition nosuid_transition };
+allow unconfined_t sandbox_net_client_t:process2 { nnp_transition nosuid_transition };
