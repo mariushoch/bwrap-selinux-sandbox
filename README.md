@@ -22,7 +22,7 @@ This make things possible like:
 
 ### Setup
 
-Run `semodule -i bwrap-selinux-sandbox.pp` as root.  
+Run `semodule -i ./bwrap-selinux-sandbox/bwrap-selinux-sandbox.pp` as root.  
 The module can be removed using `semodule -r bwrap-selinux-sandbox`.
 
 ### Usage
@@ -30,4 +30,4 @@ The module can be removed using `semodule -r bwrap-selinux-sandbox`.
 
 
 ## Build
-Use `make` to build the SELinux module.
+Use `make` in `bwrap-selinux-sandbox/` to build the SELinux module.
