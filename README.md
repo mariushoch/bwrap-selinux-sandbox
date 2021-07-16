@@ -19,6 +19,11 @@ This make things possible like:
 `sh-5.0$ ls /mnt/`  
 `ls: cannot open directory '/mnt/': Permission denied`  
 
+Run bwrap-sandbox with a read-only `/`:
+
+`bwrap --ro-bind / / --proc /proc --bind /sys /sys bwrap-sandbox -t sandbox_web_t touch /`  
+`/usr/bin/touch: setting times of '/': Read-only file system`
+
 ## Usage
 
 ### Setup
