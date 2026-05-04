@@ -1,0 +1,10 @@
+name: Test
+on: push
+
+jobs:
+  run_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check for Python syntax error
+        run: python -m py_compile bwrap-sandbox
