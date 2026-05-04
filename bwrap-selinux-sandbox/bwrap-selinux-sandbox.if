@@ -1,1 +1,40 @@
 ## <summary></summary>
+
+interface(`sandbox_allow_userns',`
+	gen_require(`
+		type $1;
+		type sysctl_t;
+		type tmpfs_t;
+		type devpts_t;
+	')
+	allow $1 self:user_namespace create;
+	allow $1 sysctl_t:file { getattr read open };
+	allow $1 self:cap_userns { setpcap net_admin };
+	allow $1 self:netlink_route_socket nlmsg_write;
+	allow $1 tmpfs_t:lnk_file { create read };
+	allow $1 devpts_t:filesystem { mount };
+
+	# See also https://github.com/SELinuxProject/refpolicy/blob/main/policy/modules/apps/bubblewrap.if
+	dev_read_rand($1)
+	dev_remount_sysfs_fs($1)
+
+	domain_use_interactive_fds($1)
+
+	files_list_home($1)
+	files_list_non_security($1)
+	files_mounton_non_security($1)
+	files_read_etc_files($1)
+	files_search_mnt($1)
+
+	fs_getattr_nsfs_files($1)
+	fs_list_auto_mountpoints($1)
+	fs_manage_tmpfs_dirs($1)
+	fs_mount_tmpfs($1)
+	fs_remount_all_fs($1)
+	fs_unmount_tmpfs($1)
+	fs_unmount_xattr_fs($1)
+
+	miscfiles_read_localization($1)
+
+	selinux_remount_fs($1)
+');

@@ -37,3 +37,7 @@ The module can be removed using `semodule -r bwrap-selinux-sandbox`.
 
 ## Build
 Use `make` in `bwrap-selinux-sandbox/` to build the SELinux module.
+
+## SELinux booleans allowing using user namespaces
+
+To enable sandboxed applications to create their own user namespaces, the following SELinux booleans are added `sandbox_x_allow_userns`, `sandbox_net_allow_userns`, and `sandbox_net_client_allow_userns` (all of which default to `false`). Setting these to true enables sandboxed processes of the respective type to create user namespaces.
