@@ -1,5 +1,5 @@
 --- sandbox/sandbox.2c9007f	2026-05-04 11:31:09.040341447 +0200
-+++ bwrap-sandbox	2026-05-05 18:22:52.628677820 +0200
++++ bwrap-sandbox	2026-05-07 13:54:18.053717383 +0200
 @@ -35,7 +35,7 @@
  import pwd
  import sepolicy
@@ -71,12 +71,16 @@
  
                  if self.__options.X_ind or self.__options.Y_ind:
                      if self.__options.dpi:
-@@ -489,7 +498,7 @@
+@@ -489,7 +498,11 @@
                          dpi = str(Gtk.Settings.get_default().props.gtk_xft_dpi / 1024)
  
                      if os.environ.get('WAYLAND_DISPLAY') is not None:
 -                        cmds += ["-W", os.environ["WAYLAND_DISPLAY"]]
 +                        cmds += ["--ro-bind-try", xdg_runtime_dir + '/' + os.environ["WAYLAND_DISPLAY"], xdg_runtime_dir + '/' + os.environ["WAYLAND_DISPLAY"]]
++                    # Passing pipewire is seunshare -P (not currently used upstream).
++                    cmds += ["--ro-bind-try", xdg_runtime_dir + '/pipewire-0', xdg_runtime_dir + '/pipewire-0']
++                    # Passing pulse is not supported upstream at all (yet often needed for audio).
++                    cmds += ["--ro-bind-try", xdg_runtime_dir + '/pulse', xdg_runtime_dir + '/pulse']
  
                      xmodmapfile = self.__homedir + "/.xmodmap"
                      xd = open(xmodmapfile, "w")

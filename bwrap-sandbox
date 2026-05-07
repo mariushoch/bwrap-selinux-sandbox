@@ -499,6 +499,10 @@ bwrap-sandbox [-h] [-l level ] [-[X|M] [-H homedir] [-T tempdir]] [-I includefil
 
                     if os.environ.get('WAYLAND_DISPLAY') is not None:
                         cmds += ["--ro-bind-try", xdg_runtime_dir + '/' + os.environ["WAYLAND_DISPLAY"], xdg_runtime_dir + '/' + os.environ["WAYLAND_DISPLAY"]]
+                    # Passing pipewire is seunshare -P (not currently used upstream).
+                    cmds += ["--ro-bind-try", xdg_runtime_dir + '/pipewire-0', xdg_runtime_dir + '/pipewire-0']
+                    # Passing pulse is not supported upstream at all (yet often needed for audio).
+                    cmds += ["--ro-bind-try", xdg_runtime_dir + '/pulse', xdg_runtime_dir + '/pulse']
 
                     xmodmapfile = self.__homedir + "/.xmodmap"
                     xd = open(xmodmapfile, "w")
