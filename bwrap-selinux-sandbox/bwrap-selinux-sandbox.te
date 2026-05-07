@@ -1,14 +1,17 @@
 policy_module(bwrap-selinux-sandbox, 2.0)
 
 gen_require(`
-        type unconfined_t;
-        type sandbox_t;
+	type unconfined_t;
+	type sandbox_t;
 	type sandbox_min_t;
 	type sandbox_x_t;
-        type sandbox_web_t;
+	type sandbox_web_t;
 	type sandbox_net_t;
 	type sandbox_net_client_t;
-        class process2 { nnp_transition nosuid_transition };
+	type sandbox_x_client_t;
+	type sandbox_xserver_t;
+	type sandbox_web_client_t;
+	class process2 { nnp_transition nosuid_transition };
 ')
 
 gen_tunable(sandbox_x_allow_userns, false)
@@ -21,6 +24,12 @@ allow unconfined_t sandbox_x_t:process2 { nnp_transition nosuid_transition };
 allow unconfined_t sandbox_web_t:process2 { nnp_transition nosuid_transition };
 allow unconfined_t sandbox_net_t:process2 { nnp_transition nosuid_transition };
 allow unconfined_t sandbox_net_client_t:process2 { nnp_transition nosuid_transition };
+
+# See: grep nnp_transition policy/modules/contrib/sandboxX.te
+allow sandbox_web_t sandbox_xserver_t:process2 nosuid_transition;
+allow sandbox_x_t sandbox_x_client_t:process2 nosuid_transition;
+allow sandbox_x_t sandbox_xserver_t:process2 nosuid_transition;
+allow sandbox_web_t sandbox_web_client_t:process2 nosuid_transition;
 
 tunable_policy(`sandbox_x_allow_userns', `
 	sandbox_allow_userns(sandbox_x_t)
