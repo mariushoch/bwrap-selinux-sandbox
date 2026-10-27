@@ -458,7 +458,14 @@ bwrap-sandbox [-h] [-l level ] [-[X|M] [-H homedir] [-T tempdir]] [-I includefil
         self.__copyfiles()
         selinux.chcon(self.__homedir, self.__filecon, recursive=True)
         selinux.chcon(self.__tmpdir, self.__filecon, recursive=True)
-        selinux.chcon(self.__runuserdir, self.__filecon, recursive=True)
+        try:
+            selinux.chcon(self.__runuserdir, self.__filecon, recursive=True)
+        except OSError as ose:
+            if ose.errno == 30:
+                # [Errno 30] Read-only file system
+                sys.stderr.write('Warning: Could not chcon dir "%s": Read-only file system.\n' % self.__runuserdir)
+            else:
+                raise ose
         selinux.setfscreatecon(None)
 
     def __is_wayland_app(self):

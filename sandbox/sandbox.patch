@@ -1,5 +1,5 @@
---- sandbox/sandbox.2c9007f	2026-05-04 11:31:09.040341447 +0200
-+++ bwrap-sandbox	2026-05-07 13:54:18.053717383 +0200
+--- sandbox/sandbox.2c9007f	2026-08-10 22:57:19.723256459 +0200
++++ bwrap-sandbox	2026-10-23 17:24:12.488290428 +0200
 @@ -35,7 +35,7 @@
  import pwd
  import sepolicy
@@ -47,7 +47,23 @@
  %s
  """) % types
  
-@@ -473,11 +473,20 @@
+@@ -458,7 +458,14 @@
+         self.__copyfiles()
+         selinux.chcon(self.__homedir, self.__filecon, recursive=True)
+         selinux.chcon(self.__tmpdir, self.__filecon, recursive=True)
+-        selinux.chcon(self.__runuserdir, self.__filecon, recursive=True)
++        try:
++            selinux.chcon(self.__runuserdir, self.__filecon, recursive=True)
++        except OSError as ose:
++            if ose.errno == 30:
++                # [Errno 30] Read-only file system
++                sys.stderr.write('Warning: Could not chcon dir "%s": Read-only file system.\n' % self.__runuserdir)
++            else:
++                raise ose
+         selinux.setfscreatecon(None)
+ 
+     def __is_wayland_app(self):
+@@ -473,11 +480,20 @@
  
      def __execute(self):
          try:
@@ -71,7 +87,7 @@
  
                  if self.__options.X_ind or self.__options.Y_ind:
                      if self.__options.dpi:
-@@ -489,7 +498,11 @@
+@@ -489,7 +505,11 @@
                          dpi = str(Gtk.Settings.get_default().props.gtk_xft_dpi / 1024)
  
                      if os.environ.get('WAYLAND_DISPLAY') is not None:
